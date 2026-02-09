@@ -22,6 +22,7 @@ class TokenPayload(BaseModel):
     tenant_id:int
 
 
-
-
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 

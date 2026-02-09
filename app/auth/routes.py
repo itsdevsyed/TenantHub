@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..db.session import get_db  # you'll create this file soon
+from ..db.session import get_db
 from . import schemas
 from .service import AuthService
 
@@ -12,6 +12,6 @@ async def register_user(payload: schemas.UserCreate, db: AsyncSession = Depends(
     return await service.register_user(payload)
 
 @router.post("/login")
-async def login_user(email: str, password: str, db: AsyncSession = Depends(get_db)):
+async def login_user(payload: schemas.UserLogin, db: AsyncSession = Depends(get_db)):
     service = AuthService(db)
-    return await service.login_user(email, password)
+    return await service.login_user(payload.email, payload.password)

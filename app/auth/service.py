@@ -105,3 +105,19 @@ class AuthService:
             "refresh_token": refresh,
             "token_type": "bearer"
         }
+
+
+async def blacklist_token(self, token: str):
+    try:
+        payload = verify_access_token(token)
+        exp = payload.get("exp")
+        # Current time in UTC timestamp
+        now = time.time()
+        ttl = int(exp - now)
+
+        if ttl > 0:
+            # Store in Redis with the remaining life of the token as the expiry
+            await self.redis.setex(f"bl_{token}", ttl, "true")
+    except Exception as e:
+        # If token is already expired or invalid, no need to blacklist
+        pass

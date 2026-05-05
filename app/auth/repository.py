@@ -1,56 +1,40 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from . import models
-from typing import Optional
+from sqlalchemy import select
+from app.auth.models import User, Tenant
 
 
 class UserRepository:
-    def __init__(self, session: AsyncSession):
-        self.session = session
+    def __init__(self, db: AsyncSession):
+        self.db = db
 
-    async def get_by_email(self, email: str) -> Optional[models.User]:
-        # Using .execute() + .scalars().first() is correct for SQLAlchemy 2.0 Async
-        result = await self.session.execute(
-            select(models.User).filter(models.User.email == email)
+    async def get_by_email(self, email: str, tenant_id: int):
+        res = await self.db.execute(
+            select(User).where(
+                User.email == email,
+                User.tenant_id == tenant_id
+            )
         )
-        return result.scalars().first()
+        return res.scalars().first()
 
-    # --- ADDED THIS METHOD ---
-    async def get_by_id(self, user_id: int) -> Optional[models.User]:
-        """Required for the /me route and get_current_user dependency"""
-        result = await self.session.execute(
-            select(models.User).filter(models.User.id == user_id)
-        )
-        return result.scalars().first()
-
-    async def create_user(
-        self, email: str, hashed_password: str, tenant_id: int, full_name: str = None
-    ) -> models.User:
-        user = models.User(
-            email=email,
-            hashed_password=hashed_pw,
-            tenant_id=tenant_id,
-            full_name=full_name
-        )
-        self.session.add(user)
-        # flush() pushes the object to the DB so we get the ID back,
-        # but doesn't finish the transaction yet.
-        await self.session.flush()
+    async def create(self, **data):
+        user = User(**data)
+        self.db.add(user)
+        await self.db.flush()
         return user
 
 
 class TenantRepository:
-    def __init__(self, session: AsyncSession):
-        self.session = session
+    def __init__(self, db: AsyncSession):
+        self.db = db
 
-    async def get_by_name(self, name: str) -> Optional[models.Tenant]:
-        result = await self.session.execute(
-            select(models.Tenant).filter(models.Tenant.name == name)
+    async def get_by_slug(self, slug: str):
+        res = await self.db.execute(
+            select(Tenant).where(Tenant.slug == slug)
         )
-        return result.scalars().first()
+        return res.scalars().first()
 
-    async def create_tenant(self, name: str) -> models.Tenant:
-        tenant = models.Tenant(name=name)
-        self.session.add(tenant)
-        await self.session.flush()
-        return tenant
+    async def create(self, name: str, slug: str):
+        t = Tenant(name=name, slug=slug)
+        self.db.add(t)
+        await self.db.flush()
+        return t

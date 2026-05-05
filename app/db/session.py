@@ -1,18 +1,22 @@
-# app/auth/database.py
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from app.auth.config import settings  # adjust import if needed
 
-# 1️⃣ Create async engine
-engine = create_async_engine(settings.DATABASE_URL, echo=False, future=True)
+from app.auth.config import settings
 
-# 2️⃣ Session factory
+# 🔗 Database engine (async)
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=False,
+    future=True
+)
+
+# 🧠 Session factory
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
     expire_on_commit=False,
     class_=AsyncSession
 )
 
-# 3️⃣ Dependency for FastAPI routes
+# 🚪 FastAPI dependency
 async def get_db() -> AsyncSession:
     async with AsyncSessionLocal() as session:
         yield session

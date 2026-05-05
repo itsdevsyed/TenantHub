@@ -1,20 +1,17 @@
-from redis.asyncio import Redis
+from redis import Redis
+from .config import settings
 
-REDIS_URL = "redis://localhost:6379"
+redis_client = Redis.from_url(
+    settings.REDIS_URL,
+    decode_responses=True,
+    socket_timeout=5,
+    socket_connect_timeout=5
+)
 
-# Initialize as None, but hint it properly
-redis_client: Redis | None = None
 
-async def init_redis():
-    """Call this in your main.py lifespan startup"""
-    global redis_client
-    redis_client = Redis.from_url(
-        REDIS_URL,
-        decode_responses=True
-    )
-
-def get_redis() -> Redis:
-    """Dependency for FastAPI routes"""
-    if redis_client is None:
-        raise RuntimeError("Redis client is not initialized. Call init_redis() first.")
-    return redis_client
+def get_redis():
+    try:
+        redis_client.ping()
+        return redis_client
+    except Exception:
+        raise Exception("Redis connection failed")

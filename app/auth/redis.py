@@ -1,5 +1,5 @@
-from redis import Redis
-from .config import settings
+from redis.asyncio import Redis
+from app.auth.config import settings
 
 redis_client = Redis.from_url(
     settings.REDIS_URL,
@@ -9,9 +9,9 @@ redis_client = Redis.from_url(
 )
 
 
-def get_redis():
+async def get_redis():
     try:
-        redis_client.ping()
+        await redis_client.ping()
         return redis_client
     except Exception:
         raise Exception("Redis connection failed")

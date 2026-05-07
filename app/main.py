@@ -1,17 +1,19 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from app.auth.routes import router as auth_router
+from app.db.base import Base
+from app.db.session import engine
 
-app = FastAPI(
-    title="TenantHub API",
-    version="1.0.0"
-)
-
-# ---------- ROUTES ----------
-app.include_router(auth_router)
+# IMPORTANT
+from app.auth.models import Tenant, User, RefreshToken
 
 
-# ---------- ROOT ----------
-@app.get("/")
-async def root():
-    return {"message": "TenantHub API running"}
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    yield
+
+
+app = FastAPI(lifespan=lifespan)

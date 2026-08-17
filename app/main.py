@@ -7,6 +7,7 @@ from redis.asyncio import Redis
 
 from app.db.base import Base
 from app.db.session import engine, get_db
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.auth.models import Tenant, User, RefreshToken
 from app.auth.routes import router as auth_router
@@ -22,9 +23,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
+Instrumentator().instrument(app).expose(app)
 app.include_router(auth_router)
-
+@app.get("/")
+async def root():
+    return {"message": "TenantHub API is running"}
 
 @app.get("/health", tags=["Health"])
 async def health(

@@ -16,7 +16,11 @@ services:
   postgres:
     image: postgres:17
     container_name: tenanthub_postgres
+<<<<<<< HEAD
     restart: unless-stopped
+=======
+    restart: always
+>>>>>>> 619bd27 (added the grafana+ loki+ promethius config to setup)
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -32,6 +36,59 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: tenanthub_cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: tenanthub_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: tenanthub_grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  loki:
+    image: grafana/loki:latest
+    container_name: tenanthub_loki
+    ports: 
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: tenanthub_alloy
+    ports:
+      - "12345:12345"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+    command:
+      - run
+      - /etc/alloy/config.alloy
 
 volumes:
   postgres_data:
+<<<<<<< HEAD
+=======
+  grafana_data:
+>>>>>>> 619bd27 (added the grafana+ loki+ promethius config to setup)

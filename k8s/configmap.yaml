@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgres-config
-  namespace: tenanthub
-
-data:
-  POSTGRES_DB: tenanthub

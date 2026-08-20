@@ -2,10 +2,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: api-config
-  namespace: tenanthub
+  namespace: syedshoib-dev
 
 data:
-  DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/tenanthub"
   REDIS_URL: "redis://redis:6379"
   JWT_ALGORITHM: "HS256"
   EXPIRES_IN: "86400"

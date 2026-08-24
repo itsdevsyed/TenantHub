@@ -24,15 +24,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-<<<<<<< HEAD
 Instrumentator().instrument(app).expose(app)
 app.include_router(auth_router)
 @app.get("/")
 async def root():
     return {"message": "TenantHub API is running"}
-=======
 
-# Prometheus metrics
+# Prometheus metricsi
 Instrumentator().instrument(app).expose(app)
 
 # API routes
@@ -40,7 +38,6 @@ app.include_router(auth_router)
 @app.get("/test-error")
 def test_error():
     raise Exception("Intentional test error")
->>>>>>> 619bd27 (added the grafana+ loki+ promethius config to setup)
 
 @app.get("/health", tags=["Health"])
 async def health(

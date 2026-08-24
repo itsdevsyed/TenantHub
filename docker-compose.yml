@@ -16,11 +16,7 @@ services:
   postgres:
     image: postgres:17
     container_name: tenanthub_postgres
-<<<<<<< HEAD
     restart: unless-stopped
-=======
-    restart: always
->>>>>>> 619bd27 (added the grafana+ loki+ promethius config to setup)
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -29,6 +25,16 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: tenanthub_postgres_exporter
+    environment:
+      DATA_SOURCE_NAME: "${POSTGRES_EXPORTER_DSN}"
+
+    ports:
+      - "9187:9187"
+    depends_on:
+      - postgres
 
   redis:
     image: redis:8
@@ -46,6 +52,16 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: tenanthub_redis_exporter
+    environment:
+      REDIS_ADDR: redis://redis:6379
+    ports:
+      - "9121:9121"
+    depends_on:
+      - redis
 
   prometheus:
     image: prom/prometheus:latest
@@ -68,9 +84,10 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: tenanthub_loki
-    ports: 
+    ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+
 
 
 
@@ -88,7 +105,4 @@ services:
 
 volumes:
   postgres_data:
-<<<<<<< HEAD
-=======
   grafana_data:
->>>>>>> 619bd27 (added the grafana+ loki+ promethius config to setup)

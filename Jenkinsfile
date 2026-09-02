@@ -1,21 +1,23 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.11-slim-bookworm'
-        }
-    }
+    agent any
 
     stages {
+        stage('Check Python') {
+            steps {
+                sh 'python3 --version || true'
+                sh 'pip3 --version || true'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'pip install --upgrade pip'
-                sh 'pip install -r requirements.txt'
+                sh 'pip3 install --user -r requirements.txt'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'pytest'
+                sh 'python3 -m pytest'
             }
         }
     }

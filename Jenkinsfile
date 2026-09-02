@@ -11,7 +11,6 @@ pipeline {
             steps {
                 sh '''
                     python --version
-
                     python -m venv .venv
 
                     .venv/bin/pip install --upgrade pip
@@ -24,6 +23,8 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
+                    set +e
+
                     .venv/bin/python -m pytest
                     TEST_EXIT_CODE=$?
 

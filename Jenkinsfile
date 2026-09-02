@@ -8,14 +8,17 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             steps {
-                sh 'pip install --upgrade pip'
-                sh 'pip install -r requirements.txt'
+                sh '''
+                    python -m venv .venv
+                    .venv/bin/pip install --upgrade pip
+                    .venv/bin/pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Test') {
             steps {
-                sh 'python -m pytest'
+                sh '.venv/bin/python -m pytest'
             }
         }
     }
